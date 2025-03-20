@@ -43,7 +43,7 @@ public class Transition {
     // 操作类型，如 submit、rework
     @Column(name = "ACTION", nullable = true)
     @Enumerated(EnumType.STRING)
-    private TransitionAction action;
+    private TransitionAction action;//可以理解为我们的 action 字段相当于 jBPM 中 transition 的 name 或 outcome 属性，用来标识具体的流转分支
     // 可选条件表达式
     // 用于条件判断，如 ${amount > 1000}
     // 之后可以用表达式引擎解析 或者 反射调用

@@ -35,7 +35,7 @@ public class ProcessInstance {
 
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)
-    private ProcessInstanceStatus status;  // 如 RUNNING, COMPLETED, REJECTED 等
+    private ProcessInstanceStatus status;  // RUNNING, COMPLETED, REJECTED
 
     @Column(name = "STARTED_AT", nullable = true)
     private Date startedAt;

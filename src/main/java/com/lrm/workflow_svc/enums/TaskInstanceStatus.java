@@ -1,5 +1,5 @@
 package com.lrm.workflow_svc.enums;
 
 public enum TaskInstanceStatus {
-    PENDING, COMPLETED, REASSIGNED
+    NODE_ENTERED,NODE_EXITED
 }

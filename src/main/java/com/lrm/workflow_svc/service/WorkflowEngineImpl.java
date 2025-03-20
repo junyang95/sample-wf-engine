@@ -64,7 +64,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         startTaskInstance.setTaskDefinition(startTaskDefinition);
         startTaskInstance.setAssignees(new String[]{initiator}); // 假设发起人处理开始节点
         // 这里将任务状态设置为 PENDING（后续可以根据业务需求自动完成开始节点的逻辑）
-        startTaskInstance.setStatus(TaskInstanceStatus.PENDING);
+        startTaskInstance.setStatus(TaskInstanceStatus.NODE_ENTERED);
         startTaskInstance.setStartedAt(new Date());
 
         // 5. 设置当前任务，并将任务实例加入流程实例的任务列表

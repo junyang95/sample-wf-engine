@@ -36,11 +36,11 @@ public class TaskInstance {
 
     @Column(name = "ASSIGNEES", nullable = true)
     @Convert(converter = StringArrayConverter.class)
-    private String[] assignees;  // 当前处理人jw94700,vk47420
+    private String[] assignees;  // soeid of [jw94700,vk47420]
 
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)
-    private TaskInstanceStatus status;    // PENDING, COMPLETED, REASSIGNED, 等
+    private TaskInstanceStatus status;    //     NODE_ENTERED,NODE_EXITED 有点像JBPM里NODEINSTANCELOG.TYPE
 
     @Column(name = "STARTED_AT", nullable = true)
     private Date startedAt;
