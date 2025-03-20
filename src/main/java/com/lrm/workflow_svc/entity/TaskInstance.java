@@ -1,6 +1,7 @@
 package com.lrm.workflow_svc.entity;
 
 
+import com.lrm.workflow_svc.entity.converter.StringArrayConverter;
 import com.lrm.workflow_svc.enums.TaskInstanceStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -16,6 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class TaskInstance {
     @Id
     @Column(name = "ID")
@@ -31,8 +34,9 @@ public class TaskInstance {
     @JoinColumn(name = "TASK_DEFINITION_ID_FK", referencedColumnName = "id")
     private TaskDefinition taskDefinition;
 
-    @Column(name = "ASSIGNEE", nullable = true)
-    private String assignee;  // 当前处理人
+    @Column(name = "ASSIGNEES", nullable = true)
+    @Convert(converter = StringArrayConverter.class)
+    private String[] assignees;  // 当前处理人jw94700,vk47420
 
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)

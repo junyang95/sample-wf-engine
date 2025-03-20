@@ -7,6 +7,7 @@ import lombok.Setter;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 import java.util.List;
@@ -17,14 +18,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class ProcessDefinition {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "process_definition_seq")
+    @SequenceGenerator(name = "process_definition_seq", sequenceName = "process_definition_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "NAME", nullable = true)
-    private String name;
+    private String name;//WF5, WF2
 
     @Column(name = "DESCRIPTION", nullable = true)
     private String description;

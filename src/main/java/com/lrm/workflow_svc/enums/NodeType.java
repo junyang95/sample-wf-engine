@@ -1,7 +1,9 @@
 package com.lrm.workflow_svc.enums;
 
 public enum NodeType {
-    START,
-    TASK,
-    END
+    START_NODE,
+    HUMAN_TASK_NODE,
+    JOIN,
+    SPLIT,
+    END_NODE,
 }

@@ -1,14 +1,10 @@
 package com.lrm.workflow_svc.service;
 
-import com.lrm.workflow_svc.entity.ProcessDefinition;
-import com.lrm.workflow_svc.entity.ProcessInstance;
-import com.lrm.workflow_svc.entity.TaskDefinition;
-import com.lrm.workflow_svc.entity.TaskInstance;
+import com.lrm.workflow_svc.entity.*;
 import com.lrm.workflow_svc.enums.NodeType;
 import com.lrm.workflow_svc.enums.ProcessInstanceStatus;
 import com.lrm.workflow_svc.enums.TaskInstanceStatus;
-import com.lrm.workflow_svc.repo.ProcessDefinitionRepository;
-import com.lrm.workflow_svc.repo.ProcessInstanceRepository;
+import com.lrm.workflow_svc.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +23,15 @@ public class WorkflowEngineImpl implements WorkflowEngine {
     @Autowired
     private ProcessInstanceRepository processInstanceRepository;
 
+    @Autowired
+    private TaskDefinitionRepository taskDefinitionRepository;
+
+    @Autowired
+    private TaskInstanceRepository taskInstanceRepository;
+
+    @Autowired
+    private TransitionRepository transitionRepository;
+
     @Override
     public ProcessInstance startProcess(Long processDefinitionId, String initiator, Map<String, Object> variables) {
         // 1. 根据流程定义ID查询对应的流程定义
@@ -43,7 +48,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
 
         // 3. 找到流程定义中的开始节点（假设 nodeType 为 START 的节点为开始节点）
         Optional<TaskDefinition> startTaskDefinitionOpt = processDefinition.getTaskDefinitions().stream()
-                .filter(td -> td.getNodeType() == NodeType.START)
+                .filter(td -> td.getNodeType() == NodeType.START_NODE)
                 .findFirst();
 
         if (startTaskDefinitionOpt.isEmpty()) {
@@ -57,7 +62,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
 //        startTaskInstance.setId(generateNewTaskInstanceId());
         startTaskInstance.setProcessInstance(processInstance);
         startTaskInstance.setTaskDefinition(startTaskDefinition);
-        startTaskInstance.setAssignee(initiator); // 假设发起人处理开始节点
+        startTaskInstance.setAssignees(new String[]{initiator}); // 假设发起人处理开始节点
         // 这里将任务状态设置为 PENDING（后续可以根据业务需求自动完成开始节点的逻辑）
         startTaskInstance.setStatus(TaskInstanceStatus.PENDING);
         startTaskInstance.setStartedAt(new Date());
