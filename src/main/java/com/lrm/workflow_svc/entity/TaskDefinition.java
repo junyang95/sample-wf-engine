@@ -20,6 +20,7 @@ import java.util.List;
 public class TaskDefinition {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

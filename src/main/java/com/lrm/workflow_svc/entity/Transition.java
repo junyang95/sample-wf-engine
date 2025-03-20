@@ -19,6 +19,7 @@ import java.util.Date;
 public class Transition {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

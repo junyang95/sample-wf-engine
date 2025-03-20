@@ -19,6 +19,8 @@ import java.util.List;
 public class ProcessInstance {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "process_instance_seq")
+    @SequenceGenerator(name = "process_instance_seq", sequenceName = "process_instance_seq", allocationSize = 1)
     private Long id;
 
 

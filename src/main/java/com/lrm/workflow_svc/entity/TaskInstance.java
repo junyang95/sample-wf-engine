@@ -19,6 +19,8 @@ import java.util.Date;
 public class TaskInstance {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_instance_seq")
+    @SequenceGenerator(name = "task_instance_seq", sequenceName = "task_instance_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne

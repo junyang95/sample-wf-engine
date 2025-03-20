@@ -20,6 +20,7 @@ import java.util.List;
 public class ProcessDefinition {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "NAME", nullable = true)
