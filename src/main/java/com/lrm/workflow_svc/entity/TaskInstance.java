@@ -38,9 +38,12 @@ public class TaskInstance {
     @Convert(converter = StringArrayConverter.class)
     private String[] assignees;  // soeid of [jw94700,vk47420]
 
+    @Column(name = "ACTUAL_OWNER_ID", nullable = true)
+    private String actualOwnerId; // soeid of jw94700, who completed the task
+
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)
-    private TaskInstanceStatus status;    //     NODE_ENTERED,NODE_EXITED 有点像JBPM里NODEINSTANCELOG.TYPE
+    private TaskInstanceStatus status;  // CREATED, READY, IN_PROGRESS, COMPLETED, EXITED, RESERVED, 有点像JBPM里NODEINSTANCELOG.TYPE
 
     @Column(name = "STARTED_AT", nullable = true)
     private Date startedAt;

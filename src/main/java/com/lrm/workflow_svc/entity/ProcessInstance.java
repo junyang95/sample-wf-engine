@@ -33,9 +33,10 @@ public class ProcessInstance {
     @Column(name = "INITIATOR", nullable = true)
     private String initiator;
 
+    // add default value
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)
-    private ProcessInstanceStatus status;  // RUNNING, COMPLETED, REJECTED
+    private ProcessInstanceStatus status = ProcessInstanceStatus.READY_TO_START;// READY_TO_START, STARTED, COMPLETED, ABORTED对应jbpm中的0, 1, 2, 3
 
     @Column(name = "STARTED_AT", nullable = true)
     private Date startedAt;

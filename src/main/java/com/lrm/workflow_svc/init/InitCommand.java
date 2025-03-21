@@ -4,12 +4,14 @@ import com.lrm.workflow_svc.entity.ProcessDefinition;
 import com.lrm.workflow_svc.entity.TaskDefinition;
 import com.lrm.workflow_svc.enums.LRMTaskName;
 import com.lrm.workflow_svc.repo.*;
+import com.lrm.workflow_svc.service.WorkflowEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -31,15 +33,31 @@ public class InitCommand implements CommandLineRunner {
     @Autowired
     private TransitionRepository transitionRepository;
 
+    @Autowired
+    private WorkflowEngine workflowEngine;
+
     @Override
     public void run(String... args) throws Exception {
+
+        ProcessDefinition processDefinition = defineNewProcessDefinition();
+
+        addTaskDefinition(processDefinition);
+
+        //
+        workflowEngine.startProcess(processDefinition.getId(), "jw94700", new HashMap<>());
+    }
+
+    private ProcessDefinition defineNewProcessDefinition() {
         ProcessDefinition processDefinition = new ProcessDefinition();
         processDefinition.setName("LRM_FIVE_WF");
         processDefinition.setDescription("LRM 5 level workflow");
         processDefinition.setVersion(1);
 
         processDefinitionRepository.save(processDefinition);
+        return processDefinition;
+    }
 
+    private void addTaskDefinition(ProcessDefinition processDefinition) {
         List<TaskDefinition> taskDefinitions = new ArrayList<>();
         TaskDefinition taskDefinition1 = new TaskDefinition();
         taskDefinition1.setName(LRMTaskName.REVIEW_INITIATED);
@@ -70,6 +88,12 @@ public class InitCommand implements CommandLineRunner {
         taskDefinition5.setProcessDefinition(processDefinition);
         taskDefinition5.setNodeType(LRMTaskName.PENDING_GLRM_HEAD_REVIEW.getNodeType());
         taskDefinitions.add(taskDefinition5);
+
+        TaskDefinition taskDefinition6 = new TaskDefinition();
+        taskDefinition6.setName(LRMTaskName.REVIEW_COMPLETED);
+        taskDefinition6.setProcessDefinition(processDefinition);
+        taskDefinition6.setNodeType(LRMTaskName.REVIEW_COMPLETED.getNodeType());
+        taskDefinitions.add(taskDefinition6);
 
         taskDefinitionRepository.saveAll(taskDefinitions);
     }

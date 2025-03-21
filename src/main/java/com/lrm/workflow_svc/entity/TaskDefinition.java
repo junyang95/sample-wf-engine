@@ -43,7 +43,7 @@ public class TaskDefinition {
     // 允许的角色列表，决定哪些用户可以操作该节点
     @Column(name = "ALLOWED_ROLES", nullable = true)
     @Convert(converter = StringArrayConverter.class)
-    private String[] allowedRoles;//GRLM_TESTER/ADMIN/ERM/CLUSTER_OWNER
+    private String[] allowedRoles;//GRLM_TESTER/ADMIN/ERM/CLUSTER_OWNER自定义的roles
 
     // 任务节点的执行者
     @CreatedDate
