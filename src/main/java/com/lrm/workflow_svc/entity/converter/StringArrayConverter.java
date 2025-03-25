@@ -3,7 +3,7 @@ package com.lrm.workflow_svc.entity.converter;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter
+@Converter(autoApply = false)
 public class StringArrayConverter implements AttributeConverter<String[], String> {
 
     private static final String DELIMITER = ",";

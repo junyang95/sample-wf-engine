@@ -2,6 +2,7 @@ package com.lrm.workflow_svc.entity;
 
 
 import com.lrm.workflow_svc.entity.converter.StringArrayConverter;
+import com.lrm.workflow_svc.entity.converter.StringListConverter;
 import com.lrm.workflow_svc.enums.TaskInstanceStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "task_instance", schema = "PUBLIC")
@@ -34,9 +36,9 @@ public class TaskInstance {
     @JoinColumn(name = "TASK_DEFINITION_ID_FK", referencedColumnName = "id")
     private TaskDefinition taskDefinition;
 
-    @Column(name = "ASSIGNEES", nullable = true)
-    @Convert(converter = StringArrayConverter.class)
-    private String[] assignees;  // soeid of [jw94700,vk47420]
+    @Column(name = "NOMINATE_ASSIGNEES", nullable = true)
+    @Convert(converter = StringListConverter.class)
+    private List<String> nominateAssignees;  // soeid of [jw94700,vk47420]
 
     @Column(name = "ACTUAL_OWNER_ID", nullable = true)
     private String actualOwnerId; // soeid of jw94700, who completed the task

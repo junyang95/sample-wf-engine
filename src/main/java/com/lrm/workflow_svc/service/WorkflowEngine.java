@@ -1,7 +1,9 @@
 package com.lrm.workflow_svc.service;
 
+import com.lrm.workflow_svc.dto.LRMProcessParams;
 import com.lrm.workflow_svc.entity.ProcessInstance;
 import com.lrm.workflow_svc.entity.TaskInstance;
+import com.lrm.workflow_svc.enums.TransitionAction;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ public interface WorkflowEngine {
      * @param variables 流程变量（如审批参数等，可选）
      * @return 新的流程实例对象
      */
-    ProcessInstance startProcess(Long processDefinitionId, String initiator, Map<String, Object> variables);
+    ProcessInstance startProcess(Long processDefinitionId, String initiator, LRMProcessParams variables);
 
     /**
      * 中止流程。
@@ -52,7 +54,7 @@ public interface WorkflowEngine {
      * @param operator 操作人ID（当前任务处理人）
      * @param variables 可选的流程变量更新
      */
-    void completeTask(Long taskInstanceId, String operator, Map<String, Object> variables);
+    void completeTask(Long taskInstanceId, TransitionAction action, String operator, Map<String, Object> variables);
 
     /**
      * 根据流程实例ID获取分配给候选人的任务列表。

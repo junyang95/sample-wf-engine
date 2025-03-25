@@ -1,6 +1,7 @@
 package com.lrm.workflow_svc.enums;
 
 public enum LRMTaskName {
+//    PROCESS_START(NodeType.START_NODE),
     REVIEW_INITIATED(NodeType.START_NODE),
     PENDING_ENTITY_RISK_MGR_REVIEW(NodeType.HUMAN_TASK_NODE),
     PENDING_QR_REVIEW(NodeType.HUMAN_TASK_NODE),

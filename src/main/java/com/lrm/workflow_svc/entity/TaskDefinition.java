@@ -1,6 +1,8 @@
 package com.lrm.workflow_svc.entity;
 
+import com.lrm.workflow_svc.entity.converter.LRMRoleListConverter;
 import com.lrm.workflow_svc.entity.converter.StringArrayConverter;
+import com.lrm.workflow_svc.enums.LRMRole;
 import com.lrm.workflow_svc.enums.LRMTaskName;
 import com.lrm.workflow_svc.enums.NodeType;
 import jakarta.persistence.*;
@@ -42,8 +44,15 @@ public class TaskDefinition {
 
     // 允许的角色列表，决定哪些用户可以操作该节点
     @Column(name = "ALLOWED_ROLES", nullable = true)
-    @Convert(converter = StringArrayConverter.class)
-    private String[] allowedRoles;//GRLM_TESTER/ADMIN/ERM/CLUSTER_OWNER自定义的roles
+    @Convert(converter = LRMRoleListConverter.class)
+    private List<LRMRole> allowedRoles;//GRLM_TESTER/ADMIN/ERM/CLUSTER_OWNER自定义的roles
+
+    //<![CDATA[
+    //            admin,#{legal_entity == requiredLegalEntityForRole2 && region == requiredRegionForRole2 ? 'role2' : ''}
+    //          ]]>
+    // 像jbpm的humanPerformer
+    @Column(name = "RESOURCE_ASSIGNMENT_EXPRESSION", nullable = true)
+    private String resourceAssignmentExpression;
 
     // 任务节点的执行者
     @CreatedDate

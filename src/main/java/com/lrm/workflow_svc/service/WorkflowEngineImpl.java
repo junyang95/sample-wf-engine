@@ -1,5 +1,6 @@
 package com.lrm.workflow_svc.service;
 
+import com.lrm.workflow_svc.dto.LRMProcessParams;
 import com.lrm.workflow_svc.entity.*;
 import com.lrm.workflow_svc.enums.NodeType;
 import com.lrm.workflow_svc.enums.ProcessInstanceStatus;
@@ -35,10 +36,13 @@ public class WorkflowEngineImpl implements WorkflowEngine {
     private WorkflowAssignmentValidator workflowAssignmentValidator;
 
     @Override
-    public ProcessInstance startProcess(Long processDefinitionId, String initiator, Map<String, Object> variables) {
+    public ProcessInstance startProcess(Long processDefinitionId, String initiator, LRMProcessParams variables) {
         // 根据流程定义ID查询对应的流程定义
         ProcessDefinition processDefinition = processDefinitionRepository.findById(processDefinitionId)
                 .orElseThrow(() -> new RuntimeException("流程定义不存在, id: " + processDefinitionId));
+
+        // 校验流程启动权限(这个不是jbpm考虑的，而是为了方便统一)
+        workflowAssignmentValidator.validateStartPermission(processDefinition, initiator, variables);
 
         // 找到起始任务定义（START_NODE）
         TaskDefinition startTaskDef = processDefinition.getTaskDefinitions().stream()
@@ -57,6 +61,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         startTaskInstance.setStartedAt(new Date());
 
         // 将任务实例添加到流程实例中
+        processInstance.setProcessParams(variables);
         processInstance.setTaskInstances(new ArrayList<>());
         processInstance.getTaskInstances().add(startTaskInstance);
         processInstance.setCurrentTask(startTaskInstance);
@@ -74,6 +79,10 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         ProcessInstance processInstance = processInstanceRepository.findById(processInstanceId)
                 .orElseThrow(() -> new RuntimeException("流程实例不存在，id: " + processInstanceId));
 
+        // 获取当前process的参数
+        LRMProcessParams processParams = processInstance.getProcessParams();
+
+        workflowAssignmentValidator.validateAbortPermission(processInstance, operator, processParams);
 
         // 校验是否允许中止（例如，流程未完成）
         if (processInstance.getStatus() == ProcessInstanceStatus.COMPLETED ||
@@ -109,15 +118,50 @@ public class WorkflowEngineImpl implements WorkflowEngine {
 
     }
 
-    public void completeTask(TaskInstance taskInstance, TransitionAction action, String operator, Map<String, Object> params) {
+
+    public void startTask(Long taskInstanceId, String operator) {
+        // 根据ID查询任务实例
+        TaskInstance taskInstance = taskInstanceRepository.findById(taskInstanceId)
+                .orElseThrow(() -> new RuntimeException("任务实例不存在，id: " + taskInstanceId));
+
+        // 校验任务状态
+        if (taskInstance.getStatus() != TaskInstanceStatus.CREATED &&
+                taskInstance.getStatus() != TaskInstanceStatus.READY) {
+            throw new IllegalStateException("任务当前状态不允许启动");
+        }
+        // 获取当前process的参数
+        LRMProcessParams processParams = taskInstance.getProcessInstance().getProcessParams();
+
+        workflowAssignmentValidator.validateTaskStart(taskInstance, operator, processParams);
+
+        // 标记任务启动
+        taskInstance.setStatus(TaskInstanceStatus.IN_PROGRESS);
+        taskInstance.setActualOwnerId(operator);
+        taskInstance.setStartedAt(new Date());
+
+        // 持久化更新任务状态
+        taskInstanceRepository.save(taskInstance);
+    }
+
+    @Override
+    public void completeTask(Long taskInstanceId, TransitionAction action, String operator, Map<String, Object> params) {
+        //        // 将任务启动（标识任务正在处理）
+        //        taskService.start(taskId, userId);
+        //        // 完成任务，同时传入审批结果 decision
+        //        taskService.complete(taskId, userId, results);
+
+
+        // 根据ID查询任务实例
+        TaskInstance taskInstance = taskInstanceRepository.findById(taskInstanceId)
+                .orElseThrow(() -> new RuntimeException("任务实例不存在，id: " + taskInstanceId));
+
         // 校验任务状态
         if (taskInstance.getStatus() != TaskInstanceStatus.IN_PROGRESS &&
                 taskInstance.getStatus() != TaskInstanceStatus.READY) {
             throw new IllegalStateException("任务当前状态不允许完成");
         }
-
-        // 首先验证当前操作人是否在候选人列表中
-        workflowAssignmentValidator.validateTaskAction(taskInstance, operator);
+        // 获取当前process的参数
+        LRMProcessParams processParams = taskInstance.getProcessInstance().getProcessParams();
 
         // 获取当前任务定义
         TaskDefinition currentTaskDef = taskInstance.getTaskDefinition();
@@ -127,11 +171,12 @@ public class WorkflowEngineImpl implements WorkflowEngine {
                 .filter(t -> t.getAction() == action)
                 .filter(t -> {
                     // 如果存在条件表达式，则解析条件
-                    if (t.getCondition() != null && !t.getCondition().isEmpty()) {
+                    if (t.getConditionExpression() != null && !t.getConditionExpression().isEmpty()) {
                         // 这里假设有一个ConditionEvaluator接口
                         // 预留一个可以通过反射调用的方式，动态实现条件表达式的解析
                         // params也可以传入一些业务参数，用于条件表达式的计算
                         // like is gccFilledIn()?
+                        workflowAssignmentValidator.validateTaskAction(taskInstance, operator, action, processParams);
                         return true;
                     }
                     return true;
@@ -160,7 +205,6 @@ public class WorkflowEngineImpl implements WorkflowEngine {
             nextTaskInstance.setTaskDefinition(targetTaskDef);
             nextTaskInstance.setProcessInstance(processInstance);
             nextTaskInstance.setStatus(TaskInstanceStatus.CREATED);
-            nextTaskInstance.setStartedAt(new Date());
             // 根据业务需求，还可以设置分配人等属性
 
             processInstance.getTaskInstances().add(nextTaskInstance);
@@ -173,11 +217,6 @@ public class WorkflowEngineImpl implements WorkflowEngine {
 
         // 触发任务完成或流程流转事件
         // eventPublisher.publish(new TaskCompletedEvent(taskInstance));
-    }
-
-    @Override
-    public void completeTask(Long taskInstanceId, String operator, Map<String, Object> variables) {
-
     }
 
     @Override

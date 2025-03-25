@@ -1,5 +1,8 @@
 package com.lrm.workflow_svc.entity;
 
+import com.lrm.workflow_svc.dto.LRMProcessParams;
+import com.lrm.workflow_svc.entity.converter.LRMProcessParamsConverter;
+import com.lrm.workflow_svc.entity.converter.LRMRoleListConverter;
 import com.lrm.workflow_svc.enums.ProcessInstanceStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,6 +40,11 @@ public class ProcessInstance {
     @Column(name = "STATUS", nullable = true)
     @Enumerated(EnumType.STRING)
     private ProcessInstanceStatus status = ProcessInstanceStatus.READY_TO_START;// READY_TO_START, STARTED, COMPLETED, ABORTED对应jbpm中的0, 1, 2, 3
+
+    // 有点像jbpm的knowledgeSession 或者 knowledgeRuntime
+    @Column(name = "PROCESS_PARAMS", nullable = true)
+    @Convert(converter = LRMProcessParamsConverter.class)
+    private LRMProcessParams processParams;
 
     @Column(name = "STARTED_AT", nullable = true)
     private Date startedAt;
