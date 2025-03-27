@@ -46,14 +46,6 @@ public class InitCommand implements CommandLineRunner {
         ProcessDefinition processDefinition = defineNewProcessDefinition();
 
         addTaskDefinition(processDefinition);
-
-        //
-        LRMProcessParams variables = new LRMProcessParams();
-        variables.setVWLRMCluster("ASIA_S");
-        variables.setVWLRMProcess("CF");
-        variables.setVWLRMLegalEntity("IN");
-        variables.setAssessmentYear("2025");
-        workflowEngine.startProcess(processDefinition.getId(), "jw94700", variables);
     }
 
     private ProcessDefinition defineNewProcessDefinition() {
@@ -128,6 +120,7 @@ public class InitCommand implements CommandLineRunner {
         transition1to2.setFromTaskDefinition(taskDefinition1);
         transition1to2.setToTaskDefinition(taskDefinition2);
         transition1to2.setConditionExpression("evaluator.evaluate1to2Approve(userId, params)");
+        transition1to2.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition1to2.setAction(TransitionAction.APPROVE);
         transition1to2.setProcessDefinition(processDefinition);
         transitions.add(transition1to2);
@@ -136,6 +129,7 @@ public class InitCommand implements CommandLineRunner {
         transition2to1.setFromTaskDefinition(taskDefinition2);
         transition2to1.setToTaskDefinition(taskDefinition1);
         transition2to1.setConditionExpression("evaluator.evaluate2to1Reject(userId, params)");
+        transition2to1.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition2to1.setAction(TransitionAction.REJECT);
         transition2to1.setProcessDefinition(processDefinition);
         transitions.add(transition2to1);
@@ -144,6 +138,7 @@ public class InitCommand implements CommandLineRunner {
         transition2to3.setFromTaskDefinition(taskDefinition2);
         transition2to3.setToTaskDefinition(taskDefinition3);
         transition2to3.setConditionExpression("evaluator.evaluate2to3Approve(userId, params)");
+        transition2to3.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition2to3.setAction(TransitionAction.APPROVE);
         transition2to3.setProcessDefinition(processDefinition);
         transitions.add(transition2to3);
@@ -152,6 +147,7 @@ public class InitCommand implements CommandLineRunner {
         transition3to1.setFromTaskDefinition(taskDefinition3);
         transition3to1.setToTaskDefinition(taskDefinition1);
         transition3to1.setConditionExpression("evaluator.evaluate3to1Reject(userId, params)");
+        transition3to1.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition3to1.setAction(TransitionAction.REJECT);
         transition3to1.setProcessDefinition(processDefinition);
         transitions.add(transition3to1);
@@ -160,6 +156,7 @@ public class InitCommand implements CommandLineRunner {
         transition3to4.setFromTaskDefinition(taskDefinition3);
         transition3to4.setToTaskDefinition(taskDefinition4);
         transition3to4.setConditionExpression("evaluator.evaluate3to4Approve(userId, params)");
+        transition3to4.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition3to4.setAction(TransitionAction.APPROVE);
         transition3to4.setProcessDefinition(processDefinition);
         transitions.add(transition3to4);
@@ -168,6 +165,7 @@ public class InitCommand implements CommandLineRunner {
         transition4to1.setFromTaskDefinition(taskDefinition4);
         transition4to1.setToTaskDefinition(taskDefinition1);
         transition4to1.setConditionExpression("evaluator.evaluate4to1Reject(userId, params)");
+        transition4to1.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition4to1.setAction(TransitionAction.REJECT);
         transition4to1.setProcessDefinition(processDefinition);
         transitions.add(transition4to1);
@@ -176,6 +174,7 @@ public class InitCommand implements CommandLineRunner {
         transition4to5.setFromTaskDefinition(taskDefinition4);
         transition4to5.setToTaskDefinition(taskDefinition5);
         transition4to5.setConditionExpression("evaluator.evaluate4to5Approve(userId, params)");
+        transition4to5.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition4to5.setAction(TransitionAction.APPROVE);
         transition4to5.setProcessDefinition(processDefinition);
         transitions.add(transition4to5);
@@ -184,6 +183,7 @@ public class InitCommand implements CommandLineRunner {
         transition5to1.setFromTaskDefinition(taskDefinition5);
         transition5to1.setToTaskDefinition(taskDefinition1);
         transition5to1.setConditionExpression("evaluator.evaluate5to1Reject(userId, params)");
+        transition5to1.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition5to1.setAction(TransitionAction.REJECT);
         transition5to1.setProcessDefinition(processDefinition);
         transitions.add(transition5to1);
@@ -192,6 +192,7 @@ public class InitCommand implements CommandLineRunner {
         transition5to6.setFromTaskDefinition(taskDefinition5);
         transition5to6.setToTaskDefinition(taskDefinition6);
         transition5to6.setConditionExpression("evaluator.evaluate5to6Approve(userId, params)");
+        transition5to6.setAllowedRoles(List.of(LRMRole.ADMIN));
         transition5to6.setAction(TransitionAction.APPROVE);
         transition5to6.setProcessDefinition(processDefinition);
         transitions.add(transition5to6);

@@ -7,4 +7,5 @@ public enum LRMRole {
     QUALITY_REVIEWER,
     REGIONAL_RISK_HEAD,
     GLRM_HEAD,
+    READ_ONLY,
 }

@@ -1,5 +1,7 @@
 package com.lrm.workflow_svc.entity;
 
+import com.lrm.workflow_svc.entity.converter.LRMRoleListConverter;
+import com.lrm.workflow_svc.enums.LRMRole;
 import com.lrm.workflow_svc.enums.TransitionAction;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 
 @Entity
@@ -45,6 +48,9 @@ public class Transition {
     @Enumerated(EnumType.STRING)
     private TransitionAction action;//可以理解为我们的 action 字段相当于 jBPM 中 transition 的 decision name 或 outcome 属性，用来标识具体的流转分支
 
+    @Column(name = "ALLOWED_ROLES", nullable = true)
+    @Convert(converter = LRMRoleListConverter.class)
+    private List<LRMRole> allowedRoles;
     // jbpm 里的 conditionExpression
     //       <conditionExpression xsi:type="tFormalExpression">
     //       <![CDATA[#{decision == 'reject' && currentUser == 'admin'}]]>

@@ -47,6 +47,8 @@ public interface WorkflowEngine {
      */
     void nominateTask(Long taskInstanceId, String operator, String nominee);
 
+    void startTask(Long taskInstanceId, String operator);
+
     /**
      * 完成任务，触发流程状态转换，并可更新流程变量。
      *

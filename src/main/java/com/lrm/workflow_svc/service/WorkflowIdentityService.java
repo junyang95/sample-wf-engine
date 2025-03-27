@@ -1,5 +1,6 @@
 package com.lrm.workflow_svc.service;
 
+import com.lrm.workflow_svc.dto.LRMUser;
 import com.lrm.workflow_svc.enums.LRMRole;
 
 import java.util.List;
@@ -11,7 +12,9 @@ public interface WorkflowIdentityService {
      * @param role 角色名称
      * @return 符合该角色的用户标识集合
      */
-    List<String> getUsersByRole(LRMRole role);
+    List<LRMUser> getUsersByRole(LRMRole role);
 
-    LRMRole getRoleByUser(String user);
+    LRMRole getRoleByUser(String soeId);
+
+    LRMUser getUserBySoeId(String soeId);
 }

@@ -10,6 +10,7 @@ import com.lrm.workflow_svc.repo.*;
 import com.lrm.workflow_svc.util.ProcessInstanceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -98,7 +99,8 @@ public class WorkflowEngineImpl implements WorkflowEngine {
             if (task.getStatus() != TaskInstanceStatus.COMPLETED) {
                 task.setStatus(TaskInstanceStatus.EXITED);
                 task.setCompletedAt(new Date());
-                task.setComments("流程由 " + operator + " 中止");
+                task.setComments("Process is aborted by " + operator);
+                taskInstanceRepository.save(task);
             }
         });
 
@@ -119,14 +121,16 @@ public class WorkflowEngineImpl implements WorkflowEngine {
     }
 
 
+    @Transactional
+    @Override
     public void startTask(Long taskInstanceId, String operator) {
         // 根据ID查询任务实例
         TaskInstance taskInstance = taskInstanceRepository.findById(taskInstanceId)
                 .orElseThrow(() -> new RuntimeException("任务实例不存在，id: " + taskInstanceId));
 
         // 校验任务状态
-        if (taskInstance.getStatus() != TaskInstanceStatus.CREATED &&
-                taskInstance.getStatus() != TaskInstanceStatus.READY) {
+        if (taskInstance.getStatus() == TaskInstanceStatus.COMPLETED ||
+                taskInstance.getStatus() == TaskInstanceStatus.EXITED) {
             throw new IllegalStateException("任务当前状态不允许启动");
         }
         // 获取当前process的参数
@@ -143,6 +147,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         taskInstanceRepository.save(taskInstance);
     }
 
+    @Transactional
     @Override
     public void completeTask(Long taskInstanceId, TransitionAction action, String operator, Map<String, Object> params) {
         //        // 将任务启动（标识任务正在处理）
@@ -161,7 +166,8 @@ public class WorkflowEngineImpl implements WorkflowEngine {
             throw new IllegalStateException("任务当前状态不允许完成");
         }
         // 获取当前process的参数
-        LRMProcessParams processParams = taskInstance.getProcessInstance().getProcessParams();
+        ProcessInstance processInstance = taskInstance.getProcessInstance();
+        LRMProcessParams processParams = processInstance.getProcessParams();
 
         // 获取当前任务定义
         TaskDefinition currentTaskDef = taskInstance.getTaskDefinition();
@@ -175,8 +181,11 @@ public class WorkflowEngineImpl implements WorkflowEngine {
                         // 这里假设有一个ConditionEvaluator接口
                         // 预留一个可以通过反射调用的方式，动态实现条件表达式的解析
                         // params也可以传入一些业务参数，用于条件表达式的计算
-                        // like is gccFilledIn()?
-                        workflowAssignmentValidator.validateTaskAction(taskInstance, operator, action, processParams);
+                        try {
+                            workflowAssignmentValidator.validateTransition(t, operator, action, processParams);
+                        } catch (Exception e) {
+                            return false;
+                        }
                         return true;
                     }
                     return true;
@@ -189,19 +198,23 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         taskInstance.setCompletedAt(new Date());
         taskInstance.setActualOwnerId(operator);
 
+        taskInstanceRepository.save(taskInstance);
+
         // 根据转移找到目标任务定义
         TaskDefinition targetTaskDef = selectedTransition.getToTaskDefinition();
 
-        ProcessInstance processInstance = taskInstance.getProcessInstance();
-
+        TaskInstance nextTaskInstance = new TaskInstance();
         // 如果目标是结束节点，直接更新流程状态
         if (targetTaskDef.getNodeType() == NodeType.END_NODE) {
+            nextTaskInstance.setTaskDefinition(targetTaskDef);
+            nextTaskInstance.setProcessInstance(processInstance);
+            nextTaskInstance.setStatus(TaskInstanceStatus.COMPLETED);
+
             processInstance.setStatus(ProcessInstanceStatus.COMPLETED);
             processInstance.setEndedAt(new Date());
             processInstance.setCurrentTask(null);
         } else {
             // 创建新的任务实例
-            TaskInstance nextTaskInstance = new TaskInstance();
             nextTaskInstance.setTaskDefinition(targetTaskDef);
             nextTaskInstance.setProcessInstance(processInstance);
             nextTaskInstance.setStatus(TaskInstanceStatus.CREATED);
@@ -210,6 +223,8 @@ public class WorkflowEngineImpl implements WorkflowEngine {
             processInstance.getTaskInstances().add(nextTaskInstance);
             processInstance.setCurrentTask(nextTaskInstance);
         }
+
+        taskInstanceRepository.save(nextTaskInstance);
 
         // 持久化更新流程实例和任务实例状态
         // 比如 taskInstanceRepository.save(taskInstance);
